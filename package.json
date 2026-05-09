@@ -1,0 +1,30 @@
+{
+  "name": "@ravilabs/draft-pr",
+  "version": "0.1.2",
+  "description": "Installs the draft-pr Claude Code skill into your project",
+  "type": "module",
+  "bin": {
+    "draft-pr": "bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "skills/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "skill",
+    "github",
+    "pull-request",
+    "pr",
+    "ai",
+    "cli"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
