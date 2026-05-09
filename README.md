@@ -97,15 +97,27 @@ fix my PR description
 
 ---
 
-## Reconfigure
+## Updating
 
-Re-run the installer at any time to change your base branch or template settings:
+To get the latest skill files when a new version is published:
 
 ```bash
-npx @ravilabs/draft-pr
+npx @ravilabs/draft-pr@latest
 ```
 
-If the skill is already installed, it will ask whether to overwrite the skill files. Your `config.json` is always preserved during overwrites — only `SKILL.md`, `scripts/`, and `templates/` are updated.
+Run this from your project root. The installer will detect the existing installation and ask whether to overwrite. Your `config.json` is always preserved — only `SKILL.md`, `scripts/`, and `templates/` are updated. Restart Claude Code after updating.
+
+---
+
+## Reconfigure
+
+To change your base branch or template settings:
+
+```bash
+npx @ravilabs/draft-pr@latest
+```
+
+Same command — re-running the installer lets you update config and skill files in one step.
 
 ---
 
