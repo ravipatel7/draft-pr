@@ -24,6 +24,14 @@
     "cli"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ravipatel7/draft-pr.git"
+  },
+  "homepage": "https://github.com/ravipatel7/draft-pr#readme",
+  "bugs": {
+    "url": "https://github.com/ravipatel7/draft-pr/issues"
+  },
   "publishConfig": {
     "access": "public"
   }

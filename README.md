@@ -143,15 +143,6 @@ draft-pr/
 
 ---
 
-## Publishing (maintainers)
-
-```bash
-npm version patch   # or minor / major
-npm publish         # publishConfig.access = "public" is already set
-```
-
----
-
 ## License
 
 MIT
