@@ -29,8 +29,9 @@ Extract these values:
 > Config not found. Re-run `npx @ravilabs/draft-pr` to set up the skill.
 
 **Resolve the base branch:**
-- Check if the user's message contains a branch name argument after "draft pr" (e.g. "draft pr main", "draft pr staging", "draft pr develop").
-- If a branch argument is present, use it as the base branch for this entire run.
+- If triggered via slash command (e.g. `/draft-pr main`), the text after `/draft-pr` is the branch argument — use it directly.
+- Otherwise, check if the user's message contains a branch name after "draft pr" (e.g. "draft pr main", "draft pr staging").
+- If a branch argument is present by either method, use it as the base branch for this entire run.
 - If no argument is present, use `defaultBaseBranch` from config.
 
 Tell the user at the start:

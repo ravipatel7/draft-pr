@@ -55,17 +55,20 @@ It then writes `.claude/skills/draft-pr/config.json` and drops the skill files i
 
 ## Usage
 
-Once installed, trigger the skill inside Claude Code:
+After installation, **restart Claude Code** to register the skill. Then trigger it in two ways:
 
+**Slash command (recommended):**
 ```
-draft pr                  → creates PR against your configured default branch
-draft pr main             → creates PR against main (one-time override)
-draft pr staging          → creates PR against staging (one-time override)
+/draft-pr                 → creates PR against your configured default branch
+/draft-pr main            → creates PR against main (one-time override)
+/draft-pr staging         → creates PR against staging (one-time override)
 ```
 
-Any of these phrasings also work:
-
+**Natural language:**
 ```
+draft pr
+draft pr main
+draft pr staging
 create pr
 open pull request
 raise a PR

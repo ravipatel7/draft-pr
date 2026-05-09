@@ -246,10 +246,12 @@ async function main() {
     ok(`draft-pr skill installed to .claude/skills/draft-pr/`);
     ok(`Config saved (base branch: ${c.cyan}${baseBranch}${c.reset}, template: ${c.cyan}${templateConfig.prTemplate}${c.reset})`);
     console.log();
+    console.log(`${c.bold}  Next step:${c.reset} Restart Claude Code to register the skill.`);
+    console.log();
     console.log(`${c.bold}  Usage in Claude Code:${c.reset}`);
-    console.log(`    ${c.cyan}draft pr${c.reset}              → creates PR against ${c.bold}${baseBranch}${c.reset}`);
-    console.log(`    ${c.cyan}draft pr main${c.reset}         → creates PR against main (overrides config)`);
-    console.log(`    ${c.cyan}draft pr develop${c.reset}      → creates PR against develop (overrides config)`);
+    console.log(`    ${c.cyan}/draft-pr${c.reset}             → creates PR against ${c.bold}${baseBranch}${c.reset}`);
+    console.log(`    ${c.cyan}/draft-pr main${c.reset}        → creates PR against main (overrides config)`);
+    console.log(`    ${c.cyan}/draft-pr develop${c.reset}     → creates PR against develop (overrides config)`);
     console.log();
     dim(`  To reconfigure, re-run: npx @ravilabs/draft-pr`);
     console.log();
