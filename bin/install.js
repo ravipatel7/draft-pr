@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = path.resolve(__dirname, '..');
 const CWD = process.cwd();
+const PKG_VERSION = JSON.parse(
+  fs.readFileSync(path.join(PKG_ROOT, 'package.json'), 'utf8')
+).version;
 
 // ─── Output helpers ──────────────────────────────────────────────────────────
 
@@ -101,6 +104,24 @@ function copyDirRecursive(src, dest) {
   }
 }
 
+// ─── Skill file copier ────────────────────────────────────────────────────────
+
+function copySkillFiles(destDir) {
+  const srcDir = path.join(PKG_ROOT, 'skills', 'draft-pr');
+
+  copyFile(
+    path.join(srcDir, 'SKILL.md'),
+    path.join(destDir, 'SKILL.md')
+  );
+
+  copyDirRecursive(path.join(srcDir, 'scripts'), path.join(destDir, 'scripts'));
+
+  const preflightDest = path.join(destDir, 'scripts', 'preflight.sh');
+  if (fs.existsSync(preflightDest)) fs.chmodSync(preflightDest, 0o755);
+
+  copyDirRecursive(path.join(srcDir, 'templates'), path.join(destDir, 'templates'));
+}
+
 // ─── PR template detection ───────────────────────────────────────────────────
 
 const STANDARD_TEMPLATE_PATHS = [
@@ -178,70 +199,58 @@ function writeConfig(configDir, config) {
   );
 }
 
-// ─── Skill installer ──────────────────────────────────────────────────────────
-
-async function installSkillFiles(lq, skillDestDir) {
-  if (fs.existsSync(path.join(skillDestDir, 'SKILL.md'))) {
-    console.log();
-    const answer = await lq.ask(
-      `${c.yellow}draft-pr skill already installed.${c.reset} Overwrite with latest version? (y/N): `
-    );
-    if (!/^y(es)?$/i.test(answer.trim())) {
-      dim('Skipping skill file update. Config was still saved.');
-      return;
-    }
-  }
-
-  const skillSrcDir = path.join(PKG_ROOT, 'skills', 'draft-pr');
-
-  copyFile(
-    path.join(skillSrcDir, 'SKILL.md'),
-    path.join(skillDestDir, 'SKILL.md')
-  );
-
-  copyDirRecursive(
-    path.join(skillSrcDir, 'scripts'),
-    path.join(skillDestDir, 'scripts')
-  );
-
-  const preflightDest = path.join(skillDestDir, 'scripts', 'preflight.sh');
-  if (fs.existsSync(preflightDest)) {
-    fs.chmodSync(preflightDest, 0o755);
-  }
-
-  copyDirRecursive(
-    path.join(skillSrcDir, 'templates'),
-    path.join(skillDestDir, 'templates')
-  );
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
   printHeader();
 
+  const skillDestDir = path.join(CWD, '.claude', 'skills', 'draft-pr');
+  const configPath   = path.join(skillDestDir, 'config.json');
+
+  // ── Update path: config already exists, skip all questions ──────────────────
+  if (fs.existsSync(configPath)) {
+    const existingConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    const from = existingConfig.version ?? 'unknown';
+
+    console.log(`Existing installation found${from !== 'unknown' ? ` (v${from})` : ''}.`);
+    console.log(`Updating skill files to v${PKG_VERSION}...`);
+    console.log();
+
+    copySkillFiles(skillDestDir);
+
+    existingConfig.version   = PKG_VERSION;
+    existingConfig.updatedAt = new Date().toISOString();
+    fs.writeFileSync(configPath, JSON.stringify(existingConfig, null, 2) + '\n', 'utf8');
+
+    ok(`SKILL.md, scripts/, and templates/ updated to v${PKG_VERSION}`);
+    ok(`Config preserved — base branch: ${c.cyan}${existingConfig.defaultBaseBranch}${c.reset}`);
+    console.log();
+    console.log(`${c.bold}  Next step:${c.reset} Restart Claude Code to apply updates.`);
+    console.log();
+    dim(`  To change base branch or template, edit .claude/skills/draft-pr/config.json`);
+    console.log();
+    return;
+  }
+
+  // ── Fresh install path: ask questions, write config, copy files ──────────────
   const lq = createLineQueue();
 
   try {
-    // Steps 2–4: questions → config → skill files
     const templateConfig = await askTemplateQuestion(lq);
     const baseBranch     = await askBranchQuestion(lq);
 
     console.log();
 
-    const skillDestDir = path.join(CWD, '.claude', 'skills', 'draft-pr');
-
     writeConfig(skillDestDir, {
-      defaultBaseBranch: baseBranch,
-      prTemplate: templateConfig.prTemplate,
+      defaultBaseBranch:   baseBranch,
+      prTemplate:          templateConfig.prTemplate,
       useExistingTemplate: templateConfig.useExistingTemplate,
-      installedAt: new Date().toISOString(),
-      version: '0.1.0',
+      installedAt:         new Date().toISOString(),
+      version:             PKG_VERSION,
     });
 
-    await installSkillFiles(lq, skillDestDir);
+    copySkillFiles(skillDestDir);
 
-    // Step 5: Success
     console.log();
     ok(`draft-pr skill installed to .claude/skills/draft-pr/`);
     ok(`Config saved (base branch: ${c.cyan}${baseBranch}${c.reset}, template: ${c.cyan}${templateConfig.prTemplate}${c.reset})`);
@@ -253,7 +262,7 @@ async function main() {
     console.log(`    ${c.cyan}/draft-pr main${c.reset}        → creates PR against main (overrides config)`);
     console.log(`    ${c.cyan}/draft-pr develop${c.reset}     → creates PR against develop (overrides config)`);
     console.log();
-    dim(`  To reconfigure, re-run: npx @ravilabs/draft-pr`);
+    dim(`  To reconfigure, re-run: npx @ravilabs/draft-pr@latest`);
     console.log();
   } finally {
     lq.close();
